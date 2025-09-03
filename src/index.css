@@ -1,0 +1,22 @@
+body{
+  background-color: #333;
+}
+.flex{
+  /* display: flex; */
+  width: 100%;
+
+}
+
+.inputCont{
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  width: 50%;
+}
+
+.inputCont > input {
+  width: 100%;
+}
+.addTask{
+  padding: 10px;
+}
