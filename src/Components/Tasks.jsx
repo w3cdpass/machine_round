@@ -2,39 +2,41 @@ import { useEffect, useMemo, useState } from "react";
 
 function TaskCard({ _id, index, title, desc, priority, status }) {
   const [patching, setPatching] = useState({
-    _id: _id || '',
-    title: title || '',
-    desc : desc || '',
-    priority: priority || '',
-    status : status || ''
+    _id: _id || "",
+    title: title || "",
+    desc: desc || "",
+    priority: priority || "",
+    status: status || "",
   });
-  const [model, setModel] = useState(false)
+  const [model, setModel] = useState(false);
   const handleChange = (e) => {
     setPatching({ ...patching, [e.target.name]: e.target.value });
   };
   function openModel() {
-    setModel(true)
+    setModel(true);
   }
 
   function closeModel() {
-    setModel(false)
+    setModel(false);
   }
-  async function patchSomeField(e) {
-    e.preventDefault()
+  const patchSomeField = async (e) => {
+    e.preventDefault();
     try {
       const response = await fetch(`${import.meta.env.VITE_API}/tasks/${_id}`, {
-      method: "PATCH",
-      headers: {
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify(patching)
-    })
-    const data = await response.json()
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(patching),
+        credentials: "include",
+      });
+      if (!response.ok) {
+        throw new Error("Failed to Created Task");
+      }
     } catch (error) {
-      console.log("error", error)
+      console.log("error", error);
     }
-
-  }
+  };
   return (
     <div>
       <p>{index}</p>
@@ -47,15 +49,23 @@ function TaskCard({ _id, index, title, desc, priority, status }) {
         <form onSubmit={patchSomeField}>
           <input name="title" value={patching.title} onChange={handleChange} />
           <input name="desc" value={patching.desc} onChange={handleChange} />
-          <input name="priority" value={patching.priority} onChange={handleChange} />
-          <input name="status" value={patching.status} onChange={handleChange} />
+          <input
+            name="priority"
+            value={patching.priority}
+            onChange={handleChange}
+          />
+          <input
+            name="status"
+            value={patching.status}
+            onChange={handleChange}
+          />
           <button onClick={() => closeModel()}>Close</button>
           <button type="submit">save</button>
         </form>
       )}
     </div>
   );
-}
+};
 function SearchItem({ title, desc }) {
   return (
     <div>
@@ -74,6 +84,7 @@ function debounce(fnc, delay) {
     }, delay);
   };
 }
+/*eslint no-unused-vars: */
 function higheOrder(Componenet) {
   return function NewCom() {
     const [apiData, setApiData] = useState([]);
@@ -108,13 +119,17 @@ function Tasks() {
   const [allTask, setAllTask] = useState([]);
   const [onSearch, setOnSearch] = useState("");
 
-   const handleSearch = debounce((value) => {
+  const handleSearch = debounce((value) => {
     setOnSearch(value);
   }, 500);
   const filterData = useMemo(() => {
-    const searchTerm = onSearch.toLowerCase().trim()
-    return allTask.filter((search) => search?.title.toLowerCase().includes(searchTerm) || search?.desc.toLowerCase().includes(searchTerm))
-  }, [allTask, onSearch])
+    const searchTerm = onSearch.toLowerCase().trim();
+    return allTask.filter(
+      (search) =>
+        search?.title.toLowerCase().includes(searchTerm) ||
+        search?.desc.toLowerCase().includes(searchTerm)
+    );
+  }, [allTask, onSearch]);
 
   useEffect(() => {
     fetch(`${import.meta.env.VITE_API}/tasks`, {
@@ -128,9 +143,11 @@ function Tasks() {
   return (
     <>
       <input type="search" onChange={(e) => handleSearch(e.target.value)} />
-      {onSearch.length === 0 ? "" : filterData.map((search, index) => (
-        <SearchItem {...search} key={index}/>
-      ))}
+      {onSearch.length === 0
+        ? ""
+        : filterData.map((search, index) => (
+            <SearchItem {...search} key={index} />
+          ))}
       <AllTasks />
     </>
   );
